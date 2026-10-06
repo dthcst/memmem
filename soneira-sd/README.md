@@ -32,7 +32,7 @@ Hazlo con la cuenta de Google que quieres que sea la dueña de los pedidos (los 
 4. **Zona horaria**: rueda dentada ⚙ *Configuración del proyecto* → Zona horaria **(GMT+01:00) Madrid**. (Opcional: marca «Mostrar el archivo de manifiesto appsscript.json» y pega el de esta carpeta, que ya la trae.)
 5. **Dar permisos**: en la barra de arriba elige la función `prepararFollas` y pulsa **Ejecutar**. Google pedirá permiso:
    *Revisar permisos → tu cuenta → «Google no ha verificado esta aplicación» → Configuración avanzada → Ir a (proyecto) → Permitir.*
-   Es normal: el script es tuyo. Esto crea las pestañas **Pedidos** y **Resumo**.
+   Es normal: el script es tuyo. Esto crea las pestañas **Pedidos** y **Resumo** y activa el **informe diario** por email.
 6. (Opcional) Ejecuta `emailDeProba` y comprueba que llega el correo a pedidos@.
 7. **Publicar como aplicación web**: botón azul **Implementar → Nueva implementación** → tipo (⚙) **Aplicación web**:
    - Descripción: `pedidos`
@@ -58,6 +58,18 @@ Hazlo con la cuenta de Google que quieres que sea la dueña de los pedidos (los 
 - He añadido al final la columna **observaciones**, para que no se queden solo en el email.
 
 **Pestaña `Resumo`** — se rehace sola con cada pedido y cada vez que editas `Pedidos`. Por cada tanda (la más reciente arriba), una tabla color × talla con las unidades para la imprenta, más nº de pedidos, importe, cobrado y pendiente. Las filas en estado `anulado` no cuentan. Si alguna vez no se actualiza: menú **Death Coast → Actualizar resumo** (aparece al abrir la hoja).
+
+### Informe diario por email
+Todos los días a las **9:00** (hora de Madrid) llega a `pedidos@costa-da-morte.com` un email con:
+- el **enlace a la hoja** de pedidos,
+- **todas las camisetas pedidas en las últimas 24 h** con todos los datos (pedido, nombre, apellidos, teléfono, email, color, talla, cantidad, importe, estado, tanda, observaciones) y los totales,
+- el **resumen para la imprenta** por color y talla,
+- la hoja completa adjunta en **CSV** (se abre con Excel o Numbers).
+
+Además, cada pedido sigue mandando su propio email en el momento.
+- Cambiar la hora: `HORA_INFORME = 9` al principio del script, y luego menú **Death Coast → Activar informe diario**.
+- No recibirlo los días sin pedidos: `INFORME_SEN_PEDIDOS = false`.
+- Recibirlo ahora mismo para probar: menú **Death Coast → Enviar informe agora**.
 
 ### Si cambias el script más adelante
 **Implementar → Gestionar implementaciones → ✏️ editar → Versión: Nueva versión → Implementar.** Así la URL `/exec` no cambia. (Si haces «Nueva implementación» saldría otra URL y habría que cambiarla en `config.js`.)

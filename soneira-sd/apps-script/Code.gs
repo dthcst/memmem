@@ -19,6 +19,9 @@ var FOLLA_RESUMO = 'Resumo';
 var MAX_LINAS = 20;
 var MAX_CANTIDADE = 10;
 var ESTADOS = ['pendente', 'pagado', 'entregado', 'anulado'];
+// Informe diario por email (enlace á folla + camisetas das últimas 24 h + resumo + folla en CSV).
+var HORA_INFORME = 9;            // hora de Madrid á que chega cada día
+var INFORME_SEN_PEDIDOS = true;  // false = non mandar o informe os días sen pedidos novos
 
 var CABECEIRA = ['fecha', 'número de pedido', 'nombre', 'apellidos', 'teléfono', 'email',
   'color', 'talla', 'cantidad', 'importe', 'estado', 'tanda', 'observaciones'];
@@ -307,6 +310,8 @@ function onOpen() {
     .addItem('Actualizar resumo', 'actualizarResumo')
     .addItem('Preparar follas (primeira vez)', 'prepararFollas')
     .addItem('Enviar email de proba', 'emailDeProba')
+    .addItem('Activar informe diario', 'activarInformeDiario')
+    .addItem('Enviar informe agora', 'informeDiario')
     .addToUi();
 }
 
@@ -323,6 +328,77 @@ function prepararFollas() {
   var sobrante = ss.getSheetByName('Folla 1') || ss.getSheetByName('Hoja 1') || ss.getSheetByName('Sheet1');
   if (sobrante && sobrante.getLastRow() === 0 && ss.getSheets().length > 2) ss.deleteSheet(sobrante);
   MailApp.getRemainingDailyQuota(); // forza que pida o permiso de email
+  activarInformeDiario();
+}
+
+// ---------- INFORME DIARIO ----------
+
+/** Programa informeDiario() todos os días á HORA_INFORME. Pódese executar varias veces sen duplicar. */
+function activarInformeDiario() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'informeDiario') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('informeDiario').timeBased().everyDays(1).atHour(HORA_INFORME)
+    .inTimezone('Europe/Madrid').create();
+}
+
+function informeDiario() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var folla = ss.getSheetByName(FOLLA_PEDIDOS);
+  var tz = ss.getSpreadsheetTimeZone();
+  var datos = folla && folla.getLastRow() > 1
+    ? folla.getRange(2, 1, folla.getLastRow() - 1, CABECEIRA.length).getValues() : [];
+  var desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  var novas = datos.filter(function (f) { return f[0] instanceof Date && f[0] >= desde; });
+  if (!novas.length && !INFORME_SEN_PEDIDOS) return;
+
+  var pedidos = {}, unidades = 0, importe = 0;
+  novas.forEach(function (f) { pedidos[f[1]] = true; unidades += Number(f[8]) || 0; importe += Number(f[9]) || 0; });
+  var nPedidos = Object.keys(pedidos).length;
+  importe = Math.round(importe * 100) / 100;
+  var data = function (d) { return d instanceof Date ? Utilities.formatDate(d, tz, 'dd/MM HH:mm') : String(d); };
+
+  var celda = 'style="border:1px solid #ccc;padding:4px 6px"';
+  var taboa = function (cab, filas) {
+    return '<table style="border-collapse:collapse;font-size:13px"><tr>' +
+      cab.map(function (c) { return '<th ' + celda + ' align="left">' + esc_(c) + '</th>'; }).join('') + '</tr>' +
+      filas.map(function (f) {
+        return '<tr>' + f.map(function (v) { return '<td ' + celda + '>' + esc_(v) + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</table>';
+  };
+
+  var html = '<h2 style="margin:0 0 8px">Pedidos das últimas 24 horas</h2>' +
+    '<p><b>' + nPedidos + '</b> pedidos · <b>' + unidades + '</b> camisetas · <b>' + importe + ' €</b><br>' +
+    '<a href="' + ss.getUrl() + '">Abrir a folla de pedidos</a></p>';
+  html += novas.length
+    ? taboa(['data', 'pedido', 'nome', 'apelidos', 'teléfono', 'email', 'cor', 'talla', 'cant.', 'importe', 'estado', 'tanda', 'observacións'],
+        novas.map(function (f) {
+          return [data(f[0]), f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9] + ' €', f[10], f[11], f[12]];
+        }))
+    : '<p>Hoxe non entrou ningún pedido novo.</p>';
+
+  actualizarResumo();
+  var resumo = ss.getSheetByName(FOLLA_RESUMO);
+  if (resumo && resumo.getLastRow() > 0) {
+    var r = resumo.getDataRange().getDisplayValues().filter(function (f) { return f.join('') !== ''; });
+    html += '<h3 style="margin:20px 0 8px">Resumo para imprenta (todos os pedidos)</h3>' +
+      '<table style="border-collapse:collapse;font-size:13px">' + r.map(function (f) {
+        return '<tr>' + f.map(function (v) { return '<td ' + celda + '>' + esc_(v) + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</table>';
+  }
+
+  var csv = [CABECEIRA].concat(datos.map(function (f) {
+    return f.map(function (v, i) { return i === 0 ? data(v) : v; });
+  })).map(function (f) {
+    return f.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
+  }).join('\r\n');
+  var adxunto = Utilities.newBlob('\ufeff' + csv, 'text/csv',
+    'pedidos-' + Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd') + '.csv');
+
+  MailApp.sendEmail(EMAIL_PEDIDOS,
+    'Informe diario · ' + nPedidos + ' pedidos novos · ' + unidades + ' camisetas · ' + importe + ' €',
+    'Pedidos das últimas 24 h: ' + nPedidos + ' (' + unidades + ' camisetas, ' + importe + ' €).\nFolla: ' + ss.getUrl(),
+    { name: NOME_REMITENTE, htmlBody: html, attachments: [adxunto] });
 }
 
 function emailDeProba() {
