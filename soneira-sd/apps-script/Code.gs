@@ -46,9 +46,9 @@ function doPost(e) {
     try {
       numero = seguinteNumero_(pedido.prefixo);
       var agora = new Date();
-      var filas = pedido.linas.map(function (l) {
+      var filas = pedido.linas.map(function (l, i) {
         return [agora, numero, limpar_(pedido.nome), limpar_(pedido.apelidos), pedido.telefono, pedido.email,
-          limpar_(l.cor), limpar_(l.talla), l.cantidade, l.cantidade * pedido.prezo, 'pendente',
+          limpar_(l.cor), limpar_(l.talla), l.cantidade, pedido.importes[i], 'pendente',
           limpar_(pedido.tanda), limpar_(pedido.observacions)];
       });
       var inicio = folla.getLastRow() + 1;
@@ -83,6 +83,7 @@ function validar_(d) {
     tanda: texto(d.tanda, 40) || 'Sen tanda',
     prefixo: String(d.prefixo || 'PED').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5) || 'PED',
     prezo: Number(d.prezo),
+    pack: null,
     linas: []
   };
   if (!p.nome || !p.apelidos) throw new Error('Faltan nome ou apelidos');
@@ -90,6 +91,11 @@ function validar_(d) {
   p.telefono = p.telefono.replace(/^(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3');
   if (p.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(p.email)) throw new Error('Email non válido');
   if (!(p.prezo > 0 && p.prezo < 1000)) throw new Error('Prezo non válido');
+  if (d.pack) {
+    var pc = Math.floor(Number(d.pack.cantidade)), pp = Number(d.pack.prezo);
+    if (!(pc >= 2 && pc <= 10 && pp > 0 && pp < 1000)) throw new Error('Oferta non válida');
+    p.pack = { cantidade: pc, prezo: pp };
+  }
   if (!Array.isArray(d.linas) || !d.linas.length || d.linas.length > MAX_LINAS) throw new Error('Liñas non válidas');
   d.linas.forEach(function (l) {
     var q = Math.floor(Number(l.cantidade));
@@ -97,7 +103,24 @@ function validar_(d) {
     if (!cor || !talla || !(q >= 1 && q <= MAX_CANTIDADE)) throw new Error('Liña non válida');
     p.linas.push({ cor: cor, talla: talla, cantidade: q });
   });
+  p.importes = calcularImportes_(p);
   return p;
+}
+
+/**
+ * Mesma conta ca na web: cada pack (p. ex. 2 camisetas de calquera cor) vai ao prezo do pack
+ * e as soltas ao prezo normal. Repártese por liñas na orde do pedido.
+ */
+function calcularImportes_(p) {
+  var unidades = p.linas.reduce(function (s, l) { return s + l.cantidade; }, 0);
+  var enPack = p.pack ? Math.floor(unidades / p.pack.cantidade) * p.pack.cantidade : 0;
+  var unidadePack = p.pack ? p.pack.prezo / p.pack.cantidade : 0;
+  var contadas = 0;
+  return p.linas.map(function (l) {
+    var dePack = Math.max(0, Math.min(l.cantidade, enPack - contadas));
+    contadas += l.cantidade;
+    return Math.round((dePack * unidadePack + (l.cantidade - dePack) * p.prezo) * 100) / 100;
+  });
 }
 
 // Evita que un texto que empece por = + - @ se interprete como fórmula.
@@ -233,9 +256,9 @@ function ordenar_(valores, orde) {
 
 function mandarEmail_(numero, p) {
   var total = 0, unidades = 0;
-  var filasHtml = p.linas.map(function (l) {
-    var importe = l.cantidade * p.prezo;
-    total += importe; unidades += l.cantidade;
+  var filasHtml = p.linas.map(function (l, i) {
+    var importe = p.importes[i];
+    total = Math.round((total + importe) * 100) / 100; unidades += l.cantidade;
     return '<tr><td>' + esc_(l.cor) + '</td><td>' + esc_(l.talla) + '</td><td align="right">' +
       l.cantidade + '</td><td align="right">' + importe + ' €</td></tr>';
   }).join('');

@@ -51,7 +51,7 @@ Hazlo con la cuenta de Google que quieres que sea la dueña de los pedidos (los 
 
 | fecha | número de pedido | nombre | apellidos | teléfono | email | color | talla | cantidad | importe | estado | tanda | observaciones |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 06/10/2026 18:02 | SSD-0042 | Ana | Lema Pose | 612 345 678 | | Branca | M | 2 | 30,00 € | pendente | Tanda 1 | |
+| 06/10/2026 18:02 | SSD-0042 | Ana | Lema Pose | 612 345 678 | | Branca | M | 2 | 25,00 € | pendente | Tanda 1 | |
 | 06/10/2026 18:02 | SSD-0042 | Ana | Lema Pose | 612 345 678 | | Negra | 10 anos | 1 | 15,00 € | pendente | Tanda 1 | |
 
 - La columna **estado** tiene desplegable: `pendente`, `pagado`, `entregado`, `anulado`. Cámbialo a mano cuando paguen o recojan.
@@ -136,11 +136,16 @@ tanda: {
 ```
 Los números de pedido siguen la serie (no vuelven a 0001).
 
-### Cambiar el precio
+### Cambiar el precio y la oferta
 ```js
-prezo: 15,     // ← por ejemplo 18, o 14.5
+prezo: 15,                          // ← precio de una camiseta suelta
+pack: { cantidade: 2, prezo: 25 },  // ← cada 2 camisetas del pedido, 25 €
 ```
-Cambia el precio de la página, el total en directo, la confirmación, el email y el importe de la hoja. Lo único que no cambia solo es la vista previa al compartir el enlace por WhatsApp (`og:description` en las primeras líneas de `index.html`); edítala si quieres que diga el nuevo precio.
+- La oferta cuenta **todas** las camisetas del pedido, mezclando colores y tallas: 1 = 15 €, 2 = 25 €, 3 = 40 €, 4 = 50 €…
+- En la hoja, cada línea lleva su parte: las unidades que entran en pareja van a 12,50 € y la suelta a 15 €. Así la suma de las filas de un pedido es siempre su total.
+- Para quitar la oferta: `pack: null,`
+
+Cambia el precio de la página, el total en directo, el «Aforras X €», la confirmación, el email y el importe de la hoja. Lo único que no cambia solo es la vista previa al compartir el enlace por WhatsApp (`og:description` en las primeras líneas de `index.html`); edítala si quieres que diga el nuevo precio.
 
 ### Otros ajustes en el mismo archivo
 - **Colores**: lista `cores`. Para añadir uno, copia una línea, cambia `id`, `nome`, `detalle`, `mostra` (color del circulito) y `mockup` (foto).

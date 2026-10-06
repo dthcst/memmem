@@ -22,6 +22,26 @@
     return (n % 1 ? n.toFixed(2).replace(".", ",") : String(n)) + " €";
   }
 
+  /* ---------- Prezos ----------
+   * Cada pack (p. ex. 2 camisetas) do pedido vai ao prezo do pack; as soltas, ao prezo normal.
+   * Repártese por liñas na orde do pedido: as unidades que entran en pack levan o prezo do pack
+   * dividido entre as súas unidades. A mesma conta faise no Apps Script. */
+  var PACK = C.pack && C.pack.cantidade > 1 && C.pack.prezo > 0 ? C.pack : null;
+  function redondear(n) { return Math.round(n * 100) / 100; }
+  function calcularImportes(cantidades) {
+    var unidades = cantidades.reduce(function (s, q) { return s + q; }, 0);
+    var enPack = PACK ? Math.floor(unidades / PACK.cantidade) * PACK.cantidade : 0;
+    var unidadePack = PACK ? PACK.prezo / PACK.cantidade : 0;
+    var contadas = 0;
+    var importes = cantidades.map(function (q) {
+      var dePack = Math.max(0, Math.min(q, enPack - contadas));
+      contadas += q;
+      return redondear(dePack * unidadePack + (q - dePack) * C.prezo);
+    });
+    var total = redondear(importes.reduce(function (s, v) { return s + v; }, 0));
+    return { importes: importes, total: total, aforro: redondear(unidades * C.prezo - total) };
+  }
+
   /* ---------- Tallas ---------- */
   var TALLAS = [];
   C.tallas.forEach(function (g) {
@@ -44,6 +64,13 @@
     if (v != null) n.textContent = v;
   });
   document.querySelectorAll("[data-prezo]").forEach(function (n) { n.textContent = euros(C.prezo); });
+  document.querySelectorAll("[data-prezo-pack]").forEach(function (n) {
+    if (PACK) n.textContent = PACK.cantidade + " " + T.por + " " + euros(PACK.prezo);
+    else n.hidden = true;
+  });
+  if (PACK) $("oferta-axuda").textContent = T.ofertaAxuda
+    .replace("{cantidade}", PACK.cantidade).replace("{prezo}", euros(PACK.prezo));
+  else $("oferta-axuda").hidden = true;
 
   var estado = $("estado");
   if (aberta) {
@@ -157,16 +184,15 @@
 
   function actualizar() {
     var datos = lerLinas();
-    var total = 0;
-    datos.forEach(function (d) {
-      var importe = d.cantidade * C.prezo;
-      total += importe;
-      d.nodo.querySelector(".lina-importe").textContent = d.cantidade + " × " + euros(C.prezo) + " = " + euros(importe);
+    var conta = calcularImportes(datos.map(function (d) { return d.cantidade; }));
+    datos.forEach(function (d, i) {
+      d.nodo.querySelector(".lina-importe").textContent = euros(conta.importes[i]);
     });
     // Con só unha liña non se pode quitar
     linas.querySelectorAll(".quitar").forEach(function (b) { b.hidden = datos.length < 2; });
-    $("total").textContent = euros(total);
-    return total;
+    $("total").textContent = euros(conta.total);
+    $("aforro").textContent = conta.aforro > 0 ? T.aforras + " " + euros(conta.aforro) : "";
+    return conta.total;
   }
 
   linas.addEventListener("change", actualizar);
@@ -274,6 +300,7 @@
       observacions: $("observacions").value.trim(),
       linas: pedido,
       prezo: C.prezo,
+      pack: PACK,
       tanda: C.tanda.nome,
       prefixo: C.prefixoPedido,
       ordeTallas: TALLAS,
@@ -299,18 +326,19 @@
   });
 
   function amosarConfirmacion(numero, datos) {
-    var total = 0;
+    var conta = calcularImportes(datos.linas.map(function (l) { return l.cantidade; }));
+    var total = conta.total;
     var lista = $("resumo");
     lista.textContent = "";
-    var linasTexto = datos.linas.map(function (l) {
-      var importe = l.cantidade * C.prezo;
-      total += importe;
+    var linasTexto = datos.linas.map(function (l, i) {
+      var importe = conta.importes[i];
       var texto = l.cantidade + " × " + l.cor + " · " + T.talla + " " + l.talla;
       lista.appendChild(el("li", null, [el("span", { text: texto }), el("span", { text: euros(importe) })]));
       return "- " + texto;
     });
     $("numero").textContent = numero;
     $("total-confirmado").textContent = euros(total);
+    $("aforro-confirmado").textContent = conta.aforro > 0 ? T.aforras + " " + euros(conta.aforro) : "";
 
     var mensaxe = "Ola! Fixen o pedido " + numero + " da " + T.titulo + ":\n" +
       linasTexto.join("\n") + "\n" + T.total + ": " + euros(total) + "\n" +

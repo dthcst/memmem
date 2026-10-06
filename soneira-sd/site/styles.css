@@ -89,7 +89,8 @@ h1, h2, h3 { font-weight: 900; line-height: .92; margin: 0; }
 .marca { color: var(--azul); font-weight: 700; font-size: 1rem; margin: 0 0 .5rem; letter-spacing: .08em; }
 h1 { font-size: clamp(2.75rem, 13vw, 5.5rem); }
 .lema { font-family: var(--titulo); font-weight: 900; text-transform: uppercase; font-size: clamp(1.75rem, 8vw, 3rem); line-height: 1; margin: .75rem 0 1rem; }
-.prezo { background: var(--branco); color: var(--negro); padding: 0 .2em; }
+.prezo { background: var(--branco); color: var(--negro); padding: 0 .2em; white-space: nowrap; display: inline-block; margin-top: .25rem; }
+.prezo-pack { background: var(--azul); }
 .intro { color: var(--gris); margin: 0 0 1.25rem; max-width: 34rem; }
 
 .estado {
@@ -216,6 +217,9 @@ select {
 }
 .total strong { font-size: 2.5rem; line-height: 1; }
 form > .axuda { margin-bottom: 1.5rem; }
+.oferta { color: var(--azul); margin: 0 0 .75rem; font-weight: 600; }
+.aforro { color: var(--azul); font-weight: 600; text-align: right; margin: .25rem 0 0; }
+.aforro:empty { display: none; }
 
 .campo-check { display: grid; grid-template-columns: auto 1fr; gap: .25rem .75rem; align-items: start; margin-top: 1.5rem; }
 .campo-check input { width: 1.6rem; height: 1.6rem; margin: .1rem 0 0; accent-color: var(--azul); }

@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Camiseta oficial Soneira SD × Death Coast</title>
-  <meta name="description" content="Encarga a camiseta oficial Soneira SD × Death Coast. 15 €. Viste a vila.">
+  <meta name="description" content="Encarga a camiseta oficial Soneira SD × Death Coast. 15 €, ou 2 por 25 €. Viste a vila.">
   <meta name="theme-color" content="#0a0a0a">
   <!-- Vista previa ao compartir en WhatsApp/redes. Se cambias de club ou prezo, cambia tamén estas 4 liñas. -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Camiseta oficial Soneira SD × Death Coast">
-  <meta property="og:description" content="Viste a vila. 15 €. Fai o teu pedido.">
+  <meta property="og:description" content="Viste a vila. 15 €, ou 2 por 25 €. Fai o teu pedido.">
   <meta property="og:image" content="https://soneira.costa-da-morte.com/assets/og.jpg">
   <link rel="preload" href="fonts/barlow-condensed-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/equipo-800.jpg" as="image" imagesrcset="assets/equipo-800.jpg 800w, assets/equipo-1600.jpg 1600w" imagesizes="100vw">
@@ -28,7 +28,7 @@
     <div class="hero-texto">
       <p class="marca" data-t="marca"></p>
       <h1 data-t="titulo"></h1>
-      <p class="lema"><span data-t="lema"></span> <span class="prezo" data-prezo></span></p>
+      <p class="lema"><span data-t="lema"></span> <span class="prezo" data-prezo></span> <span class="prezo prezo-pack" data-prezo-pack></span></p>
       <p class="intro" data-t="intro"></p>
       <p class="estado" id="estado" role="status"></p>
       <a class="boton" id="boton-hero" href="#pedido" data-t="botonHero"></a>
@@ -76,6 +76,7 @@
 
         <fieldset class="linas">
           <legend data-t="camisetas"></legend>
+          <p class="axuda oferta" id="oferta-axuda" data-t="ofertaAxuda"></p>
           <div id="linas"></div>
           <button type="button" class="boton-secundario" id="engadir">+ <span data-t="engadir"></span></button>
         </fieldset>
@@ -84,6 +85,7 @@
           <span data-t="total"></span>
           <strong id="total">0 €</strong>
         </div>
+        <p class="aforro" id="aforro" aria-live="polite"></p>
         <p class="axuda" data-t="pago"></p>
 
         <div class="campo">
@@ -116,6 +118,7 @@
         <h4 data-t="resumo"></h4>
         <ul class="resumo" id="resumo"></ul>
         <div class="total"><span data-t="total"></span> <strong id="total-confirmado"></strong></div>
+        <p class="aforro" id="aforro-confirmado"></p>
         <p class="axuda" data-t="pago"></p>
         <a class="boton boton-whatsapp" id="whatsapp" href="#" target="_blank" rel="noopener" data-t="whatsapp"></a>
         <button type="button" class="boton-secundario" id="outro" data-t="outroPedido"></button>

@@ -20,11 +20,14 @@ window.SITE_CONFIG = {
     aberta: true,                 // true = aberta · false = pechada
     nome: "Tanda 1",              // aparece na folla de cálculo e no email
     peche: "2026-10-26",          // último día para encargar (AAAA-MM-DD). Ese día aínda se pode.
-    entrega: "Entrega no campo un día de partido" // texto curto baixo a data
+    entrega: "Entrega desta tanda no campo, un día de partido" // texto curto baixo a data
   },
 
   // ---------- PRODUTO ----------
-  prezo: 15,                      // euros por camiseta. Cámbiase só aquí.
+  prezo: 15,                      // euros por camiseta solta. Cámbiase só aquí.
+  // Oferta: cada 2 camisetas do pedido (de calquera cor e talla) custan 25 €.
+  // 1 = 15 € · 2 = 25 € · 3 = 40 € · 4 = 50 €. Para quitar a oferta: pack: null,
+  pack: { cantidade: 2, prezo: 25 },
   cantidadeMaxima: 10,            // máximo por liña
   prefixoPedido: "SSD",           // número de pedido: SSD-0001, SSD-0002...
 
@@ -66,8 +69,11 @@ window.SITE_CONFIG = {
     tituloPaxina: "Camiseta oficial Soneira SD × Death Coast",
     marca: "Soneira SD × Death Coast",
     titulo: "Camiseta oficial Soneira SD × Death Coast",
-    lema: "Viste a vila.",            // ao lado vai o prezo automaticamente
-    intro: "Encárgaa a través do club. Ao pechar a tanda imprimímolas todas xuntas e entregámolas no campo.",
+    lema: "Viste a vila.",            // ao lado van os prezos automaticamente
+    por: "por",                       // "2 por 25 €"
+    ofertaAxuda: "{cantidade} por {prezo}, mesturando cores e tallas.", // {cantidade} e {prezo} enchénse sós
+    aforras: "Aforras",
+    intro: "Encárgaa a través do club. As entregas fanse por tandas: ao pechar cada tanda imprimímolas todas xuntas e entregámolas no campo un día de partido.",
     botonHero: "Fai o teu pedido",
 
     tandaAberta: "Tanda aberta ata o",
