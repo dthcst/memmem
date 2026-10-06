@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="gl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Camiseta oficial Soneira SD × Death Coast</title>
+  <meta name="description" content="Encarga a camiseta oficial Soneira SD × Death Coast. 15 €. Viste a vila.">
+  <meta name="theme-color" content="#0a0a0a">
+  <!-- Vista previa ao compartir en WhatsApp/redes. Se cambias de club ou prezo, cambia tamén estas 4 liñas. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Camiseta oficial Soneira SD × Death Coast">
+  <meta property="og:description" content="Viste a vila. 15 €. Fai o teu pedido.">
+  <meta property="og:image" content="https://soneira.costa-da-morte.com/assets/og.jpg">
+  <link rel="preload" href="fonts/barlow-condensed-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/equipo-800.jpg" as="image" imagesrcset="assets/equipo-800.jpg 800w, assets/equipo-1600.jpg 1600w" imagesizes="100vw">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0a0a'/%3E%3Cpath d='M4 26 28 6' stroke='%235bb4e5' stroke-width='5'/%3E%3C/svg%3E">
+</head>
+<body>
+  <a class="saltar" href="#pedido">Ir ao formulario</a>
+
+  <header class="hero">
+    <div class="hero-media">
+    <img class="hero-foto" id="hero-foto" src="assets/equipo-800.jpg"
+         srcset="assets/equipo-800.jpg 800w, assets/equipo-1600.jpg 1600w" sizes="100vw"
+         width="1600" height="1200" alt="" fetchpriority="high">
+    </div>
+    <div class="hero-texto">
+      <p class="marca" data-t="marca"></p>
+      <h1 data-t="titulo"></h1>
+      <p class="lema"><span data-t="lema"></span> <span class="prezo" data-prezo></span></p>
+      <p class="intro" data-t="intro"></p>
+      <p class="estado" id="estado" role="status"></p>
+      <a class="boton" id="boton-hero" href="#pedido" data-t="botonHero"></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="bloque" aria-labelledby="t-prenda">
+      <h2 id="t-prenda" data-t="tituloPrenda"></h2>
+      <p class="sub" data-t="prenda"></p>
+      <div class="mockups" id="mockups"></div>
+      <div class="galeria" id="galeria" tabindex="0" aria-label="Fotos coa camiseta"></div>
+    </section>
+
+    <section class="bloque" id="pedido" aria-labelledby="t-pedido" tabindex="-1">
+      <h2 id="t-pedido" data-t="tituloFormulario"></h2>
+
+      <div class="pechada" id="pechada" hidden>
+        <p class="pechada-titulo" data-t="tandaPechada"></p>
+        <p data-t="tandaPechadaSub"></p>
+      </div>
+
+      <form id="formulario" novalidate hidden>
+        <div class="campo">
+          <label for="nome" data-t="nome"></label>
+          <input id="nome" name="nome" type="text" autocomplete="given-name" required maxlength="60" aria-describedby="nome-erro">
+          <p class="erro" id="nome-erro"></p>
+        </div>
+        <div class="campo">
+          <label for="apelidos" data-t="apelidos"></label>
+          <input id="apelidos" name="apelidos" type="text" autocomplete="family-name" required maxlength="80" aria-describedby="apelidos-erro">
+          <p class="erro" id="apelidos-erro"></p>
+        </div>
+        <div class="campo">
+          <label for="telefono" data-t="telefono"></label>
+          <input id="telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel-national" required maxlength="20" placeholder="600 000 000" aria-describedby="telefono-axuda telefono-erro">
+          <p class="axuda" id="telefono-axuda" data-t="telefonoAxuda"></p>
+          <p class="erro" id="telefono-erro"></p>
+        </div>
+        <div class="campo">
+          <label for="email"><span data-t="email"></span> <span class="opcional">(<span data-t="opcional"></span>)</span></label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" aria-describedby="email-erro">
+          <p class="erro" id="email-erro"></p>
+        </div>
+
+        <fieldset class="linas">
+          <legend data-t="camisetas"></legend>
+          <div id="linas"></div>
+          <button type="button" class="boton-secundario" id="engadir">+ <span data-t="engadir"></span></button>
+        </fieldset>
+
+        <div class="total" aria-live="polite">
+          <span data-t="total"></span>
+          <strong id="total">0 €</strong>
+        </div>
+        <p class="axuda" data-t="pago"></p>
+
+        <div class="campo">
+          <label for="observacions"><span data-t="observacions"></span> <span class="opcional">(<span data-t="opcional"></span>)</span></label>
+          <textarea id="observacions" name="observacions" rows="3" maxlength="500"></textarea>
+        </div>
+
+        <!-- Campo trampa para bots: as persoas non o ven -->
+        <div class="trampa" aria-hidden="true">
+          <label for="web">Web</label>
+          <input id="web" name="web" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="campo campo-check">
+          <input id="rgpd" name="rgpd" type="checkbox" required aria-describedby="rgpd-info rgpd-erro">
+          <label for="rgpd" data-t="rgpd"></label>
+          <p class="axuda" id="rgpd-info" data-t="rgpdInfo"></p>
+          <p class="erro" id="rgpd-erro"></p>
+        </div>
+
+        <p class="erro erro-xeral" id="erro-xeral" role="alert"></p>
+        <button type="submit" class="boton boton-enviar" id="enviar" data-t="enviar"></button>
+      </form>
+
+      <div class="confirmacion" id="confirmacion" hidden>
+        <h3 id="confirmacion-titulo" tabindex="-1" data-t="recibido"></h3>
+        <p class="numero-etiqueta" data-t="numeroPedido"></p>
+        <p class="numero" id="numero"></p>
+        <p class="axuda" data-t="gardaNumero"></p>
+        <h4 data-t="resumo"></h4>
+        <ul class="resumo" id="resumo"></ul>
+        <div class="total"><span data-t="total"></span> <strong id="total-confirmado"></strong></div>
+        <p class="axuda" data-t="pago"></p>
+        <a class="boton boton-whatsapp" id="whatsapp" href="#" target="_blank" rel="noopener" data-t="whatsapp"></a>
+        <button type="button" class="boton-secundario" id="outro" data-t="outroPedido"></button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pe">
+    <p class="pe-empresa" id="pe-empresa"></p>
+    <p><a id="pe-email" href="#"></a></p>
+    <ul class="pe-ligazons" id="pe-ligazons"></ul>
+  </footer>
+
+  <noscript><p class="noscript">Para facer o pedido precisas activar JavaScript, ou escríbenos a ola@costa-da-morte.com.</p></noscript>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
