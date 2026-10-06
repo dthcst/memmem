@@ -1,0 +1,16 @@
+# Cabeceiras para Netlify (tamén as le Cloudflare Pages)
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; form-action 'none'; frame-ancestors 'none'; base-uri 'self'
+
+# config.js sempre fresco, para que abrir/pechar a tanda se note ao momento
+/config.js
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: public, max-age=604800
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
