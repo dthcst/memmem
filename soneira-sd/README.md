@@ -4,12 +4,12 @@ Página de una sola pantalla (pensada para el móvil) donde jugadores, familias 
 
 ```
 soneira-sd/
-├── site/                  ← lo que se publica (Netlify / Vercel / GitHub Pages)
+├── site/                  ← lo que se publica (Cloudflare Pages / Netlify / Vercel)
 │   ├── config.js          ← EL ÚNICO ARCHIVO QUE HAY QUE TOCAR (precio, tanda, textos…)
 │   ├── index.html
 │   ├── styles.css
 │   ├── app.js
-│   ├── _headers           ← cabeceras de seguridad y caché (Netlify)
+│   ├── _headers           ← cabeceras de seguridad y caché (Cloudflare Pages / Netlify)
 │   ├── fonts/             ← Barlow Condensed alojada aquí (sin Google Fonts)
 │   └── assets/            ← fotos y mockups
 └── apps-script/
@@ -67,54 +67,56 @@ Una cuenta Gmail normal puede mandar 100 emails al día desde scripts (Google Wo
 
 ---
 
-## 2. Publicar la página en Netlify (gratis)
+## 2. Publicar la página en Cloudflare Pages (gratis y automático)
 
-Recomendado: **conectarlo al repositorio de GitHub**, así abrir/cerrar tanda es editar `config.js` desde el móvil y en ~30 segundos está publicado.
+Se conecta al repositorio de GitHub: **cada cambio que se guarde en GitHub se publica solo** en menos de un minuto (por ejemplo, abrir/cerrar tanda editando `config.js` desde el móvil). No hay que volver a subir nada a mano.
 
-1. Crea cuenta en [app.netlify.com](https://app.netlify.com) (puedes entrar con GitHub).
-2. **Add new site → Import an existing project → GitHub** → elige este repositorio.
-3. Configuración de build:
-   - Branch to deploy: `main`
-   - Base directory: `soneira-sd/site`
+1. Haz merge del PR en `main` (o el que sea tu rama principal).
+2. Entra en [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages → Connect to Git**.
+3. Autoriza GitHub y elige el repositorio `dthcst/memmem`.
+4. Configuración:
+   - Project name: `soneira-deathcoast` → la web queda en `soneira-deathcoast.pages.dev`
+   - Production branch: `main`
+   - Framework preset: **None**
    - Build command: *(vacío)*
-   - Publish directory: `soneira-sd/site`
-4. **Deploy**. Te da una dirección tipo `nombre-raro.netlify.app`. Cámbiala en *Site configuration → Change site name* a, por ejemplo, `soneira-deathcoast` → `soneira-deathcoast.netlify.app`.
-5. Prueba un pedido real de punta a punta (luego bórralo de la hoja o márcalo `anulado`).
+   - Build output directory: `soneira-sd/site`
+5. **Save and Deploy**. Abre `soneira-deathcoast.pages.dev` y prueba un pedido de punta a punta.
 
-> Alternativa rápida sin GitHub: [app.netlify.com/drop](https://app.netlify.com/drop) y arrastras la carpeta `site`. Funciona, pero cada cambio de `config.js` obliga a volver a arrastrarla.
->
-> Vercel o GitHub Pages también sirven (todo es estático). En ese caso el archivo `_headers` no se aplica; la página funciona igual, solo pierdes las cabeceras de seguridad extra.
+El archivo `_headers` (seguridad y caché) lo aplica Cloudflare Pages tal cual.
+
+> Alternativa sin GitHub: *Create → Pages → Upload assets* y arrastras la carpeta `site`. Funciona, pero cada cambio obliga a volver a subirla.
 
 ---
 
-## 3. Apuntar `soneira.costa-da-morte.com` (sin romper la tienda Shopify)
+## 3. Apuntar `soneira.costa-da-morte.com` (DNS en Squarespace, sin romper la tienda Shopify)
 
-La tienda usa el dominio raíz (`costa-da-morte.com`) y `www`. Un **subdominio nuevo** es un registro independiente: no toca los registros de Shopify ni el correo. Lo único que **no** hay que hacer es modificar o borrar los registros `A @` y `CNAME www` que ya existen.
+El dominio está registrado en **Squarespace** y la tienda Shopify usa el dominio raíz y `www`. Un subdominio nuevo es un registro aparte: no toca la tienda ni el correo.
 
-### Paso A — en Netlify
-*Domain management → Add a domain →* escribe `soneira.costa-da-morte.com` → *Verify → Add domain*. Netlify dirá que falta configurar el DNS y te mostrará el destino (`soneira-deathcoast.netlify.app`).
+### Paso A — en Cloudflare (primero)
+Proyecto `soneira-deathcoast` → **Custom domains → Set up a custom domain** → escribe `soneira.costa-da-morte.com` → *Continue*. Como el dominio no está en Cloudflare, te pedirá que añadas un CNAME en tu proveedor de DNS y te mostrará el valor (`soneira-deathcoast.pages.dev`).
 
-### Paso B — donde está el DNS del dominio
+> Hazlo en este orden: si creas el CNAME antes de añadir el dominio en Cloudflare, la web da error 522 hasta que lo añadas.
 
-**Si compraste el dominio en Shopify** (lo más habitual):
-1. Admin de Shopify → **Configuración → Dominios**.
-2. Pulsa en `costa-da-morte.com` → **Configuración de dominio → Editar configuración de DNS**.
-3. **Añadir registro personalizado → CNAME**:
-   - Nombre / Host: `soneira`
-   - Apunta a / Valor: `soneira-deathcoast.netlify.app` (el tuyo)
-   - TTL: el que venga por defecto.
-4. Guardar. **No toques** el registro `A` de `@` (23.227.38.65) ni el `CNAME www → shops.myshopify.com`, ni los `MX`/`TXT` del correo.
-
-**Si el dominio está en otro registrador** (GoDaddy, Dinahosting, IONOS…) y solo lo conectaste a Shopify: haz exactamente lo mismo (añadir un CNAME `soneira`) en el panel DNS de ese registrador. En Shopify no hay que hacer nada.
+### Paso B — en Squarespace
+1. [account.squarespace.com/domains](https://account.squarespace.com/domains) → `costa-da-morte.com` → **DNS** (o *DNS Settings*).
+2. En **Custom records → Add record**:
+   - Host: `soneira`
+   - Type: `CNAME`
+   - Priority: *(vacío)*
+   - TTL: el que venga
+   - Data / Alias: `soneira-deathcoast.pages.dev`
+3. **Save**. **No toques** los registros de Shopify (`@` → 23.227.38.65 y `www` → shops.myshopify.com, a veces agrupados como «Shopify» en *Presets*) ni los `MX`/`TXT` del correo.
 
 ### Paso C — esperar y HTTPS
-En 5–60 minutos (a veces unas horas) `soneira.costa-da-morte.com` abre la página. Netlify pone el certificado HTTPS gratis él solo (*Domain management → HTTPS*; si tarda, pulsa *Verify DNS configuration*). Comprueba también que `costa-da-morte.com` sigue abriendo la tienda: debería, porque no se ha tocado.
+En 5–60 minutos (a veces unas horas) el dominio sale como **Active** en Cloudflare y `soneira.costa-da-morte.com` abre la página con HTTPS automático. Comprueba que `costa-da-morte.com` sigue abriendo la tienda.
+
+> Netlify o Vercel también sirven: mismo esquema (conectar el repo, carpeta `soneira-sd/site`, CNAME `soneira` en Squarespace apuntando a la dirección que te den).
 
 ---
 
 ## 4. Abrir y cerrar una tanda · cambiar el precio
 
-Todo se hace en **`site/config.js`**. Desde el móvil: en github.com abre el archivo → ✏️ (*Edit*) → cambia → **Commit changes**. Netlify lo publica solo en menos de un minuto.
+Todo se hace en **`site/config.js`**. Desde el móvil: en github.com abre el archivo → ✏️ (*Edit*) → cambia → **Commit changes**. Cloudflare lo publica solo en menos de un minuto.
 
 ### Cerrar la tanda
 ```js
@@ -158,7 +160,7 @@ Cambia el precio de la página, el total en directo, el «Aforras X €», la co
 
 ## 5. Reutilizar con otro club
 
-1. Copia la carpeta `site` (o crea otro sitio en Netlify apuntando a una copia).
+1. Copia la carpeta `site` y crea otro proyecto en Cloudflare Pages apuntando a la copia.
 2. En `config.js` cambia `prefixoPedido` (p. ej. `"CDB"`), textos, tanda, colores, fotos y enlaces del pie.
 3. En `index.html` cambia las 4 líneas `og:` / `<title>` / `description` del principio (vista previa al compartir).
 4. Crea **otra hoja** con su propio Apps Script (sección 1) y pon su URL en `endpoint`. Así cada club tiene sus pedidos, su numeración y su resumen separados.
